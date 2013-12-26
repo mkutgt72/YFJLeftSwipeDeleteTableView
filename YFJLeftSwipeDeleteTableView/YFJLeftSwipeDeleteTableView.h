@@ -12,10 +12,10 @@
 
 @interface YFJLeftSwipeDeleteTableView : UITableView <UIGestureRecognizerDelegate>
 
-- (id) initWithFrame:(CGRect)frame style:(UITableViewStyle)style secondMenuButton:(YFJMenuButton *)secondMenuButton thirdMenuButton:(YFJMenuButton *)thirdMenuButton;
-- (id) initWithFrame:(CGRect)frame secondMenuButton:(YFJMenuButton *)secondMenuButton thirdMenuButton:(YFJMenuButton *)thirdMenuButton;
+@property (nonatomic, strong, setter = setSwipeView:) UIView* swipeView;
 
-- (void) setDeleteButtonTitle:(NSString *)title;
-- (void) setDeleteButtonAction:(void (^)(NSIndexPath *))deleteAction;
+- (void)setSwipeView:(UIView *)swipeView;
+
+- (void)hideSwipeView;
 
 @end

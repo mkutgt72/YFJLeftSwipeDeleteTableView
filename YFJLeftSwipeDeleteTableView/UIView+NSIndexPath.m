@@ -1,15 +1,15 @@
 //
-//  UIButton+NSIndexPath.m
+//  UIView+NSIndexPath.m
 //  YFJLeftSwipeDeleteTableView
 //
 //  Created by Yuichi Fujiki on 7/19/13.
 //  Copyright (c) 2013 Yuichi Fujiki. All rights reserved.
 //
 
-#import "UIButton+NSIndexPath.h"
+#import "UIView+NSIndexPath.h"
 #import <objc/runtime.h>
 
-@implementation UIButton (NSIndexPath)
+@implementation UIView (NSIndexPath)
 
 - (void)setIndexPath:(NSIndexPath *)indexPath {
     objc_setAssociatedObject(self, kYFJLeftSwipeDeleteTableViewCellIndexPathKey, indexPath, OBJC_ASSOCIATION_RETAIN);
@@ -24,4 +24,3 @@
 }
 
 @end
-

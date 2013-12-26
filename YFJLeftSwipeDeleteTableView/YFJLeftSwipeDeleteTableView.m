@@ -9,11 +9,7 @@
 
 #import "YFJLeftSwipeDeleteTableView.h"
 #import "YFJMenuButton.h"
-#import "UIButton+NSIndexPath.h"
-
-const static CGFloat kDeleteButtonWidth = 80.f;
-const static CGFloat kDeleteButtonHeight = 44.f;
-static NSArray * kOtherMenuButtonColors;
+#import "UIView+NSIndexPath.h"
 
 #define screenWidth() (UIInterfaceOrientationIsPortrait([UIApplication sharedApplication].statusBarOrientation) ? [[UIScreen mainScreen] bounds].size.width : [[UIScreen mainScreen] bounds].size.height)
 
@@ -22,22 +18,14 @@ static NSArray * kOtherMenuButtonColors;
     UISwipeGestureRecognizer * _rightGestureRecognizer;
     UITapGestureRecognizer * _tapGestureRecognizer;
 
-    UIButton * _deleteButton;
-    UIButton * _secondButton;
-    UIButton * _thirdButton;
-
     NSIndexPath * _editingIndexPath;
 }
-
-@property (nonatomic, copy) void(^deleteActionBlock)(NSIndexPath *);
 
 @end
 
 @implementation YFJLeftSwipeDeleteTableView
 
-+ (void)initialize {
-    kOtherMenuButtonColors = @[[UIColor lightGrayColor], [UIColor colorWithRed:0.f green:1.f blue:0.f alpha:1.f]];
-}
+@synthesize swipeView=_swipeView;
 
 - (id)initWithFrame:(CGRect)frame style:(UITableViewStyle)style
 {
@@ -57,58 +45,22 @@ static NSArray * kOtherMenuButtonColors;
         _tapGestureRecognizer.delegate = self;
         // Don't add this yet
 
-        _deleteButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        _deleteButton.frame = CGRectMake(screenWidth(), 0, kDeleteButtonWidth, kDeleteButtonHeight);
-        _deleteButton.backgroundColor = [UIColor redColor];
-        _deleteButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
-        [_deleteButton setTitle:@"Delete" forState:UIControlStateNormal];
-        [_deleteButton addTarget:self action:@selector(deleteItem:) forControlEvents:UIControlEventTouchUpInside];
-        [self addSubview:_deleteButton];
-
         [self setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
     }
     return self;
 }
 
-- (id)initWithFrame:(CGRect)frame
-{
-    return [self initWithFrame:frame style:UITableViewStylePlain];
-}
-
-- (id) initWithFrame:(CGRect)frame style:(UITableViewStyle)style secondMenuButton:(YFJMenuButton *)secondMenuButton thirdMenuButton:(YFJMenuButton *)thirdMenuButton {
-    self = [self initWithFrame:frame style:style];
-    if(self){
-        _secondButton = secondMenuButton;
-        _secondButton.frame = CGRectMake(screenWidth() + kDeleteButtonWidth, 0, kDeleteButtonWidth, kDeleteButtonHeight);
-        if(!_secondButton.backgroundColor)
-            _secondButton.backgroundColor = [UIColor lightGrayColor];
-        _secondButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
-        [self addSubview:_secondButton];
-
-        if(thirdMenuButton) {
-            _thirdButton = thirdMenuButton;
-            _thirdButton.frame = CGRectMake(screenWidth() + kDeleteButtonWidth * 2, 0, kDeleteButtonWidth, kDeleteButtonHeight);
-            if(!_thirdButton.backgroundColor)
-                _thirdButton.backgroundColor = [UIColor colorWithRed:0.f green:1.f blue:0.f alpha:1.f];
-            _thirdButton.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
-            [self addSubview:_thirdButton];
-        }
+- (void)setSwipeView:(UIView *)swipeView {
+    if (self.swipeView != nil) {
+        [self.swipeView removeFromSuperview];
     }
-    return self;
-}
 
-- (id) initWithFrame:(CGRect)frame secondMenuButton:(YFJMenuButton *)secondMenuButton thirdMenuButton:(YFJMenuButton *)thirdMenuButton {
-    return [self initWithFrame:frame style:UITableViewStylePlain secondMenuButton:secondMenuButton thirdMenuButton:thirdMenuButton];
-}
+    [self addSubview:swipeView];
 
-/*
- // Only override drawRect: if you perform custom drawing.
- // An empty implementation adversely affects performance during animation.
- - (void)drawRect:(CGRect)rect
- {
- // drawing code
- }
- */
+    _swipeView = swipeView;
+
+    _swipeView.frame = CGRectMake(self.frame.size.width, 0, _swipeView.frame.size.width, _swipeView.frame.size.height);
+}
 
 - (void)swiped:(UISwipeGestureRecognizer *)gestureRecognizer {
     NSIndexPath * indexPath = [self cellIndexPathForGestureRecognizer:gestureRecognizer];
@@ -163,88 +115,33 @@ static NSArray * kOtherMenuButtonColors;
 
     CGFloat cellXOffset;
     CGFloat deleteButtonXOffsetOld, deleteButtonXOffset;
-    CGFloat secondButtonXOffsetOld, secondButtonXOffset;
-    CGFloat thirdButtonXOffsetOld, thirdButtonXOffset;
 
-    CGFloat buttonsWidth = kDeleteButtonWidth;
-    if(_secondButton)
-        buttonsWidth += kDeleteButtonWidth;
-    if(_thirdButton)
-        buttonsWidth += kDeleteButtonWidth;
+    CGFloat buttonsWidth = self.swipeView.frame.size.width;
 
     if(editing) {
         cellXOffset = -buttonsWidth;
         deleteButtonXOffset = screenWidth() - buttonsWidth;
         deleteButtonXOffsetOld = screenWidth();
-        secondButtonXOffset = deleteButtonXOffset + kDeleteButtonWidth;
-        secondButtonXOffsetOld = screenWidth() + kDeleteButtonWidth;
-        thirdButtonXOffset = secondButtonXOffset + kDeleteButtonWidth;
-        thirdButtonXOffsetOld = screenWidth() + 2 * kDeleteButtonWidth;
         _editingIndexPath = indexPath;
     } else {
         cellXOffset = 0;
         deleteButtonXOffset = screenWidth();
         deleteButtonXOffsetOld = screenWidth() - buttonsWidth;
-        secondButtonXOffset = screenWidth() + kDeleteButtonWidth;
-        secondButtonXOffsetOld = screenWidth() - buttonsWidth + kDeleteButtonWidth;
-        thirdButtonXOffset = screenWidth() + kDeleteButtonWidth * 2;
-        thirdButtonXOffsetOld = screenWidth() - buttonsWidth + kDeleteButtonWidth * 2;
         _editingIndexPath = nil;
     }
 
     CGFloat cellHeight = [self.delegate tableView:self heightForRowAtIndexPath:indexPath];
-    _deleteButton.frame = (CGRect) {deleteButtonXOffsetOld, frame.origin.y, _deleteButton.frame.size.width, cellHeight};
-    _deleteButton.indexPath = indexPath;
-    _secondButton.frame = (CGRect) {secondButtonXOffsetOld, frame.origin.y, _secondButton.frame.size.width, cellHeight};
-    _secondButton.indexPath = indexPath;
-    _thirdButton.frame = (CGRect) {thirdButtonXOffsetOld, frame.origin.y, _thirdButton.frame.size.width, cellHeight};
-    _thirdButton.indexPath = indexPath;
+    self.swipeView.frame = CGRectMake(deleteButtonXOffsetOld, frame.origin.y, self.swipeView.frame.size.width, cellHeight);
+    self.swipeView.indexPath = indexPath;
 
     [UIView animateWithDuration:0.2f animations:^{
         cell.frame = CGRectMake(cellXOffset, frame.origin.y, frame.size.width, frame.size.height);
-        _deleteButton.frame = (CGRect) {deleteButtonXOffset, frame.origin.y, _deleteButton.frame.size.width, cellHeight};
-        _secondButton.frame = (CGRect) {secondButtonXOffset, frame.origin.y, _secondButton.frame.size.width, cellHeight};
-        _thirdButton.frame = (CGRect) {thirdButtonXOffset, frame.origin.y, _thirdButton.frame.size.width, cellHeight};
+        self.swipeView.frame = CGRectMake(deleteButtonXOffset, frame.origin.y, self.swipeView.frame.size.width, cellHeight);
     }];
 }
 
-#pragma mark - Interaciton
-- (void)deleteItem:(id)sender {
-    UIButton * deleteButton = (UIButton *)sender;
-    NSIndexPath * indexPath = deleteButton.indexPath;
-
-    if(self.deleteActionBlock) {
-        self.deleteActionBlock(indexPath);
-    }
-
-    [self.dataSource tableView:self commitEditingStyle:UITableViewCellEditingStyleDelete forRowAtIndexPath:indexPath];
-
-    _editingIndexPath = nil;
-
-    [UIView animateWithDuration:0.2f animations:^{
-        CGRect frame = _deleteButton.frame;
-        _deleteButton.frame = (CGRect){frame.origin, frame.size.width, 0};
-        frame = _secondButton.frame;
-        _secondButton.frame = (CGRect){frame.origin, frame.size.width, 0};
-        frame = _thirdButton.frame;
-        _thirdButton.frame = (CGRect){frame.origin, frame.size.width, 0};
-    } completion:^(BOOL finished) {
-        CGRect frame = _deleteButton.frame;
-        _deleteButton.frame = (CGRect){screenWidth(), frame.origin.y, frame.size.width, kDeleteButtonHeight};
-        frame = _secondButton.frame;
-        _secondButton.frame = (CGRect){screenWidth(), frame.origin.y, frame.size.width, kDeleteButtonHeight};
-        frame = _thirdButton.frame;
-        _thirdButton.frame = (CGRect){screenWidth(), frame.origin.y, frame.size.width, kDeleteButtonHeight};
-    }];
-}
-
-#pragma mark - Customize Delete Button
-- (void) setDeleteButtonTitle:(NSString *)title {
-    [_deleteButton setTitle:title forState:UIControlStateNormal];
-}
-
-- (void) setDeleteButtonAction:(void (^)(NSIndexPath *))deleteAction {
-    self.deleteActionBlock = deleteAction;
+- (void)hideSwipeView {
+    [self setEditing:NO atIndexPath:_editingIndexPath cell:[self cellForRowAtIndexPath:_editingIndexPath]];
 }
 
 #pragma mark - UIGestureRecognizerDelegate

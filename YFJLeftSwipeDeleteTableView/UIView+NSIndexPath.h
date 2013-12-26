@@ -1,5 +1,5 @@
 //
-//  UIButton+NSIndexPath.h
+//  UIView+NSIndexPath.h
 //  YFJLeftSwipeDeleteTableView
 //
 //  Created by Yuichi Fujiki on 7/19/13.
@@ -10,10 +10,9 @@
 
 const static char * kYFJLeftSwipeDeleteTableViewCellIndexPathKey = "YFJLeftSwipeDeleteTableViewCellIndexPathKey";
 
-@interface UIButton (NSIndexPath)
+@interface UIView (NSIndexPath)
 
 - (void)setIndexPath:(NSIndexPath *)indexPath;
 - (NSIndexPath *)indexPath;
 
 @end
-

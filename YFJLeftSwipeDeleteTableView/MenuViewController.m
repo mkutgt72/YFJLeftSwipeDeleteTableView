@@ -7,13 +7,11 @@
 //
 
 #import "MenuViewController.h"
-#import "ViewController1.h"
 #import "ViewController2.h"
 #import "ViewController3.h"
 
 NS_ENUM(NSUInteger, YFJ_EXAMPLE_MENU) {
-    YFJ_EXAMPLE_MENU_NORMAL = 0,
-    YFJ_EXAMPLE_MENU_CUSTOMIZE_DELETE_BUTTON,
+    YFJ_EXAMPLE_MENU_CUSTOMIZE_DELETE_BUTTON = 0,
     YFJ_EXAMPLE_MENU_MORE_BUTTONS,
     YFJ_EXAMPLE_MENU_COUNT
 };
@@ -67,9 +65,6 @@ NS_ENUM(NSUInteger, YFJ_EXAMPLE_MENU) {
     UITableViewCell * cell = [self.tableView dequeueReusableCellWithIdentifier:@"menuCell"];
 
     switch (indexPath.row) {
-        case YFJ_EXAMPLE_MENU_NORMAL:
-            [cell.textLabel setText:@"Simple"];
-            break;
         case YFJ_EXAMPLE_MENU_CUSTOMIZE_DELETE_BUTTON:
             [cell.textLabel setText:@"Customize Delete Button"];
             break;
@@ -87,12 +82,6 @@ NS_ENUM(NSUInteger, YFJ_EXAMPLE_MENU) {
 #pragma mark - UITableViewDelegate
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     switch (indexPath.row) {
-        case YFJ_EXAMPLE_MENU_NORMAL:
-        {
-            ViewController1 * vc = [[ViewController1 alloc] init];
-            [self.navigationController pushViewController:vc animated:YES];
-        }
-            break;
         case YFJ_EXAMPLE_MENU_CUSTOMIZE_DELETE_BUTTON:
         {
             ViewController2 * vc = [[ViewController2 alloc] init];

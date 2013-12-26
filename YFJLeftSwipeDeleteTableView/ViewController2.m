@@ -8,6 +8,7 @@
 
 #import "ViewController2.h"
 #import "YFJLeftSwipeDeleteTableView.h"
+#import "YFJMenuButton.h"
 
 @interface ViewController2 () {
     NSMutableArray * _dataArray;
@@ -44,13 +45,17 @@
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"Cell"];
-    [self.tableView setDeleteButtonTitle:@"Archive"];
 
     ViewController2 * __weak weakSelf = self;
-    [self.tableView setDeleteButtonAction:^(NSIndexPath * indexPath){
+    YFJMenuButton * deleteButton = [[YFJMenuButton alloc] initWithTitle:@"Delete" backgroundColor:[UIColor redColor] actionBlock:^(NSIndexPath * indexPath) {
         ViewController2 * strongSelf = weakSelf;
-        NSLog(@"Archived section : %d, row : %d, data : %@", indexPath.section, indexPath.row, strongSelf->_dataArray[indexPath.row]);
+        NSLog(@"Delete button tapped at section : %d, row : %d, data : %@", indexPath.section, indexPath.row, strongSelf->_dataArray[indexPath.row]);
+        [strongSelf.tableView.dataSource tableView:strongSelf.tableView commitEditingStyle:UITableViewCellEditingStyleDelete forRowAtIndexPath:indexPath];
     }];
+
+    deleteButton.frame = CGRectMake(0, 0, 64, 44);
+
+    self.tableView.swipeView = deleteButton;
 
     [self.view addSubview:self.tableView];
 
@@ -101,6 +106,7 @@
         // Delete the row from the data source
         [_dataArray removeObjectAtIndex:indexPath.row];
         [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+        [(YFJLeftSwipeDeleteTableView*)tableView hideSwipeView];
     }
     else if (editingStyle == UITableViewCellEditingStyleInsert) {
         // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
@@ -114,21 +120,5 @@
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     return 44;
 }
-
-/*
- // Override to support rearranging the table view.
- - (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
- {
- }
- */
-
-/*
- // Override to support conditional rearranging of the table view.
- - (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
- {
- // Return NO if you do not want the item to be re-orderable.
- return YES;
- }
- */
 
 @end
